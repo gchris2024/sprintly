@@ -1,4 +1,3 @@
-
 # -----------------------
 # Frontend (Vite / React)
 # -----------------------
@@ -15,6 +14,10 @@ dist/
 dist-ssr/
 *.local
 
+# Additional React/Vite outputs
+*.tsbuildinfo
+.frontend-env
+
 # -----------------------
 # Backend (Spring Boot)
 # -----------------------
@@ -22,6 +25,9 @@ dist-ssr/
 # Maven / Gradle
 target/
 build/
+.mvn/
+mvnw
+mvnw.cmd
 
 # Java compiled files
 *.class
@@ -31,9 +37,15 @@ build/
 *.war
 *.ear
 
-# Spring Boot environment config (keep samples instead)
+# Spring Boot environment config
 application.properties
 application.yml
+application-local.yml
+application-dev.yml
+application-prod.yml
+
+# IDE helper files sometimes created in backend
+*.factorypath
 
 # -----------------------
 # Environment Variables
@@ -42,6 +54,9 @@ application.yml
 .env
 .env.*
 *.env
+*.env.local
+*.env.development
+*.env.production
 
 # -----------------------
 # OS / System files
@@ -70,12 +85,21 @@ out/
 .classpath
 .settings/
 
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
 # Misc editor files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.orig
 
 # -----------------------
 # Logs
@@ -87,3 +111,15 @@ logs/
 # Test outputs
 # -----------------------
 test-output/
+
+# -----------------------
+# Misc / User workspace
+# -----------------------
+*.tmp
+*.cache
+.sass-cache/
+.cache/
+.parcel-cache/
+
+**/secret*
+**/config/*secret*
