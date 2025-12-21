@@ -1,0 +1,15 @@
+
+services:
+  db:
+    image: postgres:16.9-alpine
+    container_name: postgres-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
