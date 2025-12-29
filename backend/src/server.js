@@ -9,6 +9,9 @@ app.use(express.json())
 // app.get('/health', (req, res) => {
 //   res.status(200).json({status: 'ok'})
 // })
+app.get('/', (req, res) => {
+  res.json({message: "Good"})
+})
 
 /* Routes */
 app.use('/auth', authRoutes)

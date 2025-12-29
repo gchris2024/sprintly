@@ -1,1 +1,11 @@
-GET http://localhost:3000/health
+GET http://localhost:5555/
+
+
+### Register a new user -- POST /auth/register
+POST http://localhost:5555/auth/register
+Content-Type: application/json
+
+{
+  "username": "chris@chris.com",
+  "password": "mypass"
+}

@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { prisma } from "../lib/prismaClient.js";
+import { prisma } from "../lib/prismaClient.ts";
 
 const router = express.Router();
 
@@ -12,11 +12,21 @@ if (!process.env.JWT_SECRET) {
 
 // Helper function to validate input
 const validateAuthInput = (username, password) => {
-  if (!username || typeof username !== "string" || username.trim().length === 0) {
-    return { valid: false, message: "Username is required and must be a non-empty string" };
+  if (
+    !username ||
+    typeof username !== "string" ||
+    username.trim().length === 0
+  ) {
+    return {
+      valid: false,
+      message: "Username is required and must be a non-empty string",
+    };
   }
   if (!password || typeof password !== "string" || password.length < 6) {
-    return { valid: false, message: "Password is required and must be at least 6 characters" };
+    return {
+      valid: false,
+      message: "Password is required and must be at least 6 characters",
+    };
   }
   return { valid: true };
 };
@@ -51,6 +61,7 @@ router.post("/register", async (req, res) => {
         data: {
           task: firstTodo,
           userId: user.id,
+          weekStart: new Date(Date.now()) // TODO: Normalize with week
         },
       });
 
@@ -64,12 +75,12 @@ router.post("/register", async (req, res) => {
     res.json({ token });
   } catch (err) {
     console.error("Registration error:", err.message);
-    
+
     // Handle Prisma unique constraint violation (duplicate username)
     if (err.code === "P2002") {
       return res.status(409).json({ message: "Username already exists" });
     }
-    
+
     // Generic server error
     res.status(500).json({ message: "Internal server error" });
   }
@@ -91,7 +102,6 @@ router.post("/login", async (req, res) => {
         username: username.trim(),
       },
     });
-
 
     if (!user) {
       return res.status(401).json({ message: "Invalid username or password" });
