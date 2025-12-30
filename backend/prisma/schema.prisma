@@ -29,9 +29,7 @@ model Todo {
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
 
-  weekStart   DateTime
-
-  @@index([userId, weekStart])
+  @@index([userId])
 }
 
 model Reflection {
