@@ -26,10 +26,13 @@ model Todo {
   task        String
   completed   Boolean  @default(false)
 
+  date        DateTime @default(now())
+  minutes     Int      @default(0)
+
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
 
-  @@index([userId])
+  @@index([userId, date])
 }
 
 model Reflection {
