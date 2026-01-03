@@ -63,7 +63,6 @@ router.post("/register", async (req, res) => {
         data: {
           task: firstTodo,
           userId: user.id,
-          weekStart: new Date(Date.now()) // TODO: Normalize with week
         },
       });
 

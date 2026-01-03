@@ -1,5 +1,6 @@
-GET http://localhost:5555/
+### FILE FOR QUICK API TESTING PURPOSES ###
 
+GET http://localhost:5555/
 
 ### Register a new user -- POST /auth/register
 POST http://localhost:5555/auth/register
@@ -9,3 +10,6 @@ Content-Type: application/json
   "username": "chris@chris.com",
   "password": "mypass"
 }
+###
+GET http://localhost:5555/todos/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImlhdCI6MTc2NzA2OTU1NCwiZXhwIjoxNzY3MDcxMzU0fQ.6KFc1DuUfBjJ9Kh8sJBjoc_SSOkW-RuS-HqpJXpj9-0
