@@ -18,11 +18,6 @@ app.use('/auth', authRoutes) // register, login
 app.use('/todos', authMiddleware, todoRoutes) //
 app.use('/reflections', authMiddleware, reflectionRoutes)
 
-// (Test protected route)
-// app.use('/me', authMiddleware, (req, res) => {
-//   res.json(JSON.stringify(req.user));
-// });
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
