@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
 
 // Create a new todo
 router.post("/", async (req, res) => {
-  const { task, date, minutes } = req.body;
+  const { task, date, minutes } = req.body; // TODO: Check minutes = 0
 
   if (!task || !date) {
     return res

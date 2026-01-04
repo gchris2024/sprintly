@@ -22,36 +22,36 @@ model User {
 }
 
 model Todo {
-  id          Int      @id @default(autoincrement())
-  task        String
-  completed   Boolean  @default(false)
+  id        Int     @id @default(autoincrement())
+  task      String
+  completed Boolean @default(false)
 
-  date        DateTime @default(now())
-  minutes     Int      @default(0)
+  date    DateTime @default(now())
+  minutes Int      @default(0)
 
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   @@index([userId, date])
 }
 
 model Reflection {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  content   String
+  wins          String
+  challenges    String
+  nextWeekFocus String
 
   // Canonical week identifier
   weekStart DateTime
 
   // Metadata
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  submitted Boolean  @default(false)
+  createdAt   DateTime  @default(now())
+  submittedAt DateTime?
 
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   // One reflection per user per week
   @@unique([userId, weekStart])
 }
-
