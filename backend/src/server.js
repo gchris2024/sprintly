@@ -14,9 +14,9 @@ app.get('/', (req, res) => {
 })
 
 /* Routes */
-app.use('/auth', authRoutes) // register, login
-app.use('/todos', authMiddleware, todoRoutes) //
-app.use('/reflections', authMiddleware, reflectionRoutes)
+app.use('/api/auth', authRoutes) // register, login
+app.use('/api/todos', authMiddleware, todoRoutes) //
+app.use('/api/reflections', authMiddleware, reflectionRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

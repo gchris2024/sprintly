@@ -7,6 +7,7 @@ const router = express.Router();
 // Get weekly todos for logged in user
 router.get("/", async (req, res) => {
   const { weekStart } = req.query;
+  const userId = req.user.userId;
 
   if (!weekStart) {
     return res
@@ -20,7 +21,7 @@ router.get("/", async (req, res) => {
   // Fetch todos for the user within the week range
   const todos = await prisma.todo.findMany({
     where: {
-      userId: req.user.userId,
+      userId,
       date: {
         gte: weekStartDate,
         lt: weekEndDate,
@@ -37,6 +38,7 @@ router.get("/", async (req, res) => {
 // Create a new todo
 router.post("/", async (req, res) => {
   const { task, date, minutes } = req.body; // TODO: Check minutes = 0
+  const userId = req.user.userId;
 
   if (!task || !date) {
     return res
@@ -47,7 +49,7 @@ router.post("/", async (req, res) => {
   const todo = await prisma.todo.create({
     data: {
       task,
-      userId: req.user.userId,
+      userId,
       date: normalizeDate(date),
       minutes,
     },
@@ -61,27 +63,30 @@ router.post("/", async (req, res) => {
 router.patch("/:id", async (req, res) => {
   const { id } = req.params;
   const { task, completed, date, minutes } = req.body;
+  const userId = req.user.userId;
 
-  const result = await prisma.todo.update({
-    // Update only if the todo belongs to the user
-    where: {
-      id: parseInt(id),
-      userId: req.user.userId,
-    },
-    data: {
-      ...(completed !== undefined && { completed: !!completed }),
-      ...(minutes !== undefined && { minutes }),
-      ...(task && { task }),
-      ...(date && { date: normalizeDate(date) }),
-    },
-  });
-
-  // Return 404 if task doesn't exist or doesn't belong to user
-  if (result.count === 0) {
-    return res.status(404).json({ message: "Todo not found" });
+  try {
+    const result = await prisma.todo.update({
+      // Update only if the todo belongs to the user
+      where: {
+        id: parseInt(id),
+        userId,
+      },
+      data: {
+        ...(completed !== undefined && { completed: !!completed }),
+        ...(minutes !== undefined && { minutes }),
+        ...(task && { task }),
+        ...(date && { date: normalizeDate(date) }),
+      },
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    // Return 404 if task doesn't exist or doesn't belong to user
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+    return res.status(500).json({ error: "Failed to update todo" });
   }
-
-  res.status(200).json({ message: "Todo updated" });
 });
 
 // Delete a todo
@@ -90,19 +95,21 @@ router.delete("/:id", async (req, res) => {
   const userId = req.user.userId;
 
   // Delete the todo iff it belongs to the user
-  const result = await prisma.todo.delete({
-    where: {
-      id: parseInt(id),
-      userId,
-    },
-  });
-
-  // Return 404 if task doesn't exist or doesn't belong to user
-  if (result.count === 0) {
-    return res.status(404).json({ message: "Todo not found" });
+  try {
+    const result = await prisma.todo.delete({
+      where: {
+        id: parseInt(id),
+        userId,
+      },
+    });
+    res.send(result);
+  } catch (error) {
+    // Return 404 if task doesn't exist or doesn't belong to user
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+    return res.status(500).json({ error: "Failed to delete todo" });
   }
-
-  res.send({ message: "Todo deleted" });
 });
 
 export default router;
