@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { validateAuthInput } from "../../utils/validateAuthInput.js";
 import { prisma } from "../lib/prismaClient.ts";
 
 const router = express.Router();
@@ -11,27 +12,6 @@ const router = express.Router();
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not set");
 }
-
-// Helper function to validate input
-const validateAuthInput = (username, password) => {
-  if (
-    !username ||
-    typeof username !== "string" ||
-    username.trim().length === 0
-  ) {
-    return {
-      valid: false,
-      message: "Username is required and must be a non-empty string",
-    };
-  }
-  if (!password || typeof password !== "string" || password.length < 6) {
-    return {
-      valid: false,
-      message: "Password is required and must be at least 6 characters",
-    };
-  }
-  return { valid: true };
-};
 
 // Register a new user endpoint /auth/register
 router.post("/register", async (req, res) => {
@@ -52,7 +32,7 @@ router.post("/register", async (req, res) => {
       // Create user
       const user = await tx.user.create({
         data: {
-          username: username.trim(),
+          username: validation.data.username,
           password: hashedPassword,
         },
       });
@@ -100,7 +80,7 @@ router.post("/login", async (req, res) => {
     // Find user by username
     const user = await prisma.user.findUnique({
       where: {
-        username: username.trim(),
+        username: validation.data.username,
       },
     });
 
@@ -109,7 +89,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Compare password asynchronously
-    const passwordIsValid = await bcrypt.compare(password, user.password);
+    const passwordIsValid = await bcrypt.compare(validation.data.password, user.password);
 
     if (!passwordIsValid) {
       return res.status(401).json({ message: "Invalid username or password" });
