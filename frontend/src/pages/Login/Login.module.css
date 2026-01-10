@@ -1,0 +1,68 @@
+.loginPage {
+  display: flex;
+  flex-direction: column; /* Stack vertically on small screens */
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eab308, #a16207);
+}
+
+.loginLeft,
+.loginRight {
+  padding: 2rem;
+}
+.loginLeft {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.loginLeft h1 {
+  font-size: 4rem;
+  margin-bottom: 0;
+}
+
+.loginLeft p {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-top: 0;
+}
+
+.loginRight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.loginForm input {
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.loginForm button {
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .loginPage {
+    flex-direction: row; /* Side by side on larger screens */
+  }
+  .loginLeft {
+    flex: 1;
+    margin-left: 4rem;
+  }
+
+  .loginLeft,
+  .loginRight {
+    flex: 1;
+  }
+}
