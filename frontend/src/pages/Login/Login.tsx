@@ -18,7 +18,7 @@ const Login = () => {
 
       <section className={styles.loginRight}>
         <form className={styles.loginForm}>
-          <h2>The Welcome Message</h2>
+          <h2 >Sign In</h2>
 
           <input type="text" placeholder="Username" />
           <input type="password" placeholder="Password" />
