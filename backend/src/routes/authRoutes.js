@@ -13,7 +13,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not set");
 }
 
-// Register a new user endpoint /auth/register
+/* Register a new user endpoint api/auth/register */
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
@@ -53,7 +53,13 @@ router.post("/register", async (req, res) => {
     const token = jwt.sign({ id: result.id }, process.env.JWT_SECRET, {
       expiresIn: "30m",
     });
-    res.json({ token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // CSRF protection
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.json({ success: true, user: result });
   } catch (err) {
     console.error("Registration error:", err.message);
 
@@ -67,6 +73,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+/* Login endpoint api/auth/login */
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -89,7 +96,10 @@ router.post("/login", async (req, res) => {
     }
 
     // Compare password asynchronously
-    const passwordIsValid = await bcrypt.compare(validation.data.password, user.password);
+    const passwordIsValid = await bcrypt.compare(
+      validation.data.password,
+      user.password
+    );
 
     if (!passwordIsValid) {
       return res.status(401).json({ message: "Invalid username or password" });
@@ -99,11 +109,28 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "30m",
     });
-    res.json({ token });
+    // Set token in HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // CSRF protection
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.json({ success: true, user });
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+/* Logout endpoint api/auth/logout */
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.json({ success: true, message: "Logged out successfully" });
 });
 
 export default router;

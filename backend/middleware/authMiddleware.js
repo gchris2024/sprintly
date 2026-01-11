@@ -7,7 +7,7 @@ if (!process.env.JWT_SECRET) {
 
 export default function authMiddleware(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
+  const token = req.cookies.token || authHeader?.split(" ")[1]; // Bearer <token>
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });

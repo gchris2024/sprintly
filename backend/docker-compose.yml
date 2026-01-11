@@ -15,7 +15,7 @@ services:
       - db
     volumes:
       - .:/app
-      - node_modules:/app/node_modules
+      - /app/node_modules
 
     command: npm run dev
   db:
@@ -31,4 +31,3 @@ services:
 
 volumes:
   postgres_data:
-  node_modules:
