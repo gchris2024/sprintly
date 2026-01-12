@@ -65,7 +65,7 @@
   border: 1px solid black;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 48rem) {
   .loginPage {
     flex-direction: row; /* Side by side on larger screens */
   }

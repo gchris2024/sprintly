@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
-import authMiddleware from "../middleware/authMiddleware.js";
+import authMiddleware from "./middleware/authMiddleware.js";
 import authRoutes from "./routes/authRoutes.js";
 import todoRoutes from "./routes/todoRoutes.js";
 import reflectionRoutes from "./routes/reflectionRoutes.js";
@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 });
 
 /* Routes */
-app.use("/api/auth", authLimiter, authRoutes); // register, login
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/todos", authMiddleware, todoRoutes);
 app.use("/api/reflections", authMiddleware, reflectionRoutes);
 

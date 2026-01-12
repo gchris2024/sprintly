@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../lib/prismaClient.ts";
-import { normalizeWeekStart } from "../../utils/time.js";
+import { normalizeWeekStart } from "../utils/time.js";
 
 const router = express.Router();
 

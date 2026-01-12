@@ -1,8 +1,9 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { validateAuthInput } from "../../utils/validateAuthInput.js";
+import { validateAuthInput } from "../utils/validateAuthInput.js";
 import { prisma } from "../lib/prismaClient.ts";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not set");
 }
 
-/* Register a new user endpoint api/auth/register */
+/* Register a new user endpoint /api/auth/register */
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
@@ -59,7 +60,8 @@ router.post("/register", async (req, res) => {
       sameSite: "strict", // CSRF protection
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.json({ success: true, user: result });
+    // (Can return other non-sensitive user info as needed)
+    res.json({ success: true, username: result.username });
   } catch (err) {
     console.error("Registration error:", err.message);
 
@@ -73,7 +75,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-/* Login endpoint api/auth/login */
+/* Login endpoint /api/auth/login */
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -116,14 +118,15 @@ router.post("/login", async (req, res) => {
       sameSite: "strict", // CSRF protection
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    res.json({ success: true, user });
+    // (Can return other non-sensitive user info as needed)
+    res.json({ success: true, username: user.username });
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-/* Logout endpoint api/auth/logout */
+/* Logout endpoint /api/auth/logout */
 router.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -131,6 +134,41 @@ router.post("/logout", (req, res) => {
     sameSite: "strict",
   });
   res.json({ success: true, message: "Logged out successfully" });
+});
+
+/* Get current user endpoint /api/auth/me */
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Fetch user from database
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ success: true, username: user.username });
+  } catch (err) {
+    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+    console.error("Auth me error:", err.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 export default router;
