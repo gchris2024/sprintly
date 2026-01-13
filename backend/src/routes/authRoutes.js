@@ -7,6 +7,9 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+/*
+ *  Login, Register, Logout, Get Current User (Me) endpoints
+ */
 // TODO: Refresh tokens
 
 // Validate JWT_SECRET is set
@@ -67,11 +70,13 @@ router.post("/register", async (req, res) => {
 
     // Handle Prisma unique constraint violation (duplicate username)
     if (err.code === "P2002") {
-      return res.status(409).json({ message: "Username already exists" });
+      return res
+        .status(409)
+        .json({ success: false, message: "Username already exists" });
     }
 
     // Generic server error
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
@@ -82,7 +87,9 @@ router.post("/login", async (req, res) => {
   // Validate input
   const validation = validateAuthInput(username, password);
   if (!validation.valid) {
-    return res.status(400).json({ message: validation.message });
+    return res
+      .status(400)
+      .json({ success: false, message: validation.message });
   }
 
   try {
@@ -94,7 +101,9 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid username or password" });
     }
 
     // Compare password asynchronously
@@ -104,7 +113,9 @@ router.post("/login", async (req, res) => {
     );
 
     if (!passwordIsValid) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid username or password" });
     }
 
     // Create a token
@@ -122,7 +133,7 @@ router.post("/login", async (req, res) => {
     res.json({ success: true, username: user.username });
   } catch (err) {
     console.error("Login error:", err.message);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
@@ -142,7 +153,9 @@ router.get("/me", authMiddleware, async (req, res) => {
     const token = req.cookies.token;
 
     if (!token) {
-      return res.status(401).json({ message: "Not authenticated" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authenticated" });
     }
 
     // Verify token
@@ -158,16 +171,20 @@ router.get("/me", authMiddleware, async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    res.json({ success: true, username: user.username });
+    res.json({ id: user.id, username: user.username });
   } catch (err) {
     if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Invalid or expired token" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired token" });
     }
     console.error("Auth me error:", err.message);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
