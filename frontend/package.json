@@ -1,7 +1,8 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "the best frontend of all time",
   "type": "module",
   "scripts": {
     "dev": "vite",

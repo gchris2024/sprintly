@@ -63,5 +63,19 @@ export const authService = {
       console.error("Error during logout:", error);
       throw error;
     }
+  },
+
+  // Get current authenticated user
+  async getCurrentUser(): Promise<AuthResponse> {
+    try {
+      const response = await fetch(`${API_URL}/auth/me`, {
+        method: "GET",
+        credentials: "include",
+      });
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      throw error;
+    }
   }
 };
