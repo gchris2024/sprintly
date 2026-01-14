@@ -30,9 +30,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (response.success) {
           setUser({ username: response.username });
         }
-        setIsLoading(false);
       } catch (error) {
-        console.error("Error checking auth status:", error);
+        console.error(error);
+        setUser(null);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -44,8 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await authService.register(username, password);
     if (response.success) {
       setUser({ username: response.username });
-    }
-    else {
+    } else {
       throw new Error("Registration failed");
     }
   };
@@ -55,8 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await authService.login(username, password);
     if (response.success) {
       setUser({ username: response.username });
-    }
-    else {
+    } else {
       throw new Error("Login failed");
     }
   };
@@ -86,4 +85,4 @@ export function useAuthContext() {
     throw new Error("useAuthContext must be used within an AuthProvider");
   }
   return context;
-};
+}

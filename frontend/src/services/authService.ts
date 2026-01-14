@@ -23,6 +23,12 @@ export const authService = {
         credentials: "include",
         body: JSON.stringify({ username, password }),
       });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Registration failed");
+      }
+      
       return response.json();
     } catch (error) {
       console.error("Error during registration:", error);
@@ -44,6 +50,12 @@ export const authService = {
         credentials: "include",
         body: JSON.stringify({ username, password }),
       });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+      
       return response.json();
     } catch (error) {
       console.error("Error during login:", error);
@@ -58,6 +70,11 @@ export const authService = {
         method: "POST",
         credentials: "include",
       });
+      
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+      
       return response.json();
     } catch (error) {
       console.error("Error during logout:", error);
@@ -72,6 +89,11 @@ export const authService = {
         method: "GET",
         credentials: "include",
       });
+      
+      if (!response.ok) {
+        throw new Error("Not authenticated");
+      }
+      
       return response.json();
     } catch (error) {
       console.error("Error fetching current user:", error);

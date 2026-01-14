@@ -176,7 +176,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    res.json({ id: user.id, username: user.username });
+    res.json({ success: true, id: user.id, username: user.username });
   } catch (err) {
     if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
       return res
