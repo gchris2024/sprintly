@@ -36,6 +36,7 @@
 
 .loginForm {
   width: 100%;
+  min-width: 15rem;
   max-width: 20rem;
   display: flex;
   flex-direction: column;

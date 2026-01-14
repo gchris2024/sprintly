@@ -45,6 +45,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (response.success) {
       setUser({ username: response.username });
     }
+    else {
+      throw new Error("Registration failed");
+    }
   };
 
   // Function to login an existing user
@@ -52,6 +55,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const response = await authService.login(username, password);
     if (response.success) {
       setUser({ username: response.username });
+    }
+    else {
+      throw new Error("Login failed");
     }
   };
 
