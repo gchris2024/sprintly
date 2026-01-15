@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../lib/prismaClient.ts";
-import { normalizeWeekStart } from "../utils/time.js";
+import { parseUTCDate } from "../utils/time.js";
 
 const router = express.Router();
 
@@ -8,7 +8,15 @@ const router = express.Router();
 // If DNE, create a new reflection with empty fields
 router.get("/current", async (req, res) => {
   const userId = req.user.userId;
-  const weekStart = normalizeWeekStart(new Date());
+  const { weekStart: weekStartParam } = req.query;
+
+  if (!weekStartParam) {
+    return res
+      .status(400)
+      .json({ message: "weekStart query param is required" });
+  }
+
+  const weekStart = parseUTCDate(weekStartParam);
 
   // TODO: Maybe wrap in transaction
   try {
@@ -38,8 +46,15 @@ router.get("/current", async (req, res) => {
 // Update reflection for the week
 router.patch("/current", async (req, res) => {
   const userId = req.user.userId;
-  const weekStart = normalizeWeekStart(new Date());
-  const { wins, challenges, nextWeekFocus } = req.body;
+  const { weekStart: weekStartParam, wins, challenges, nextWeekFocus } = req.body;
+
+  if (!weekStartParam) {
+    return res
+      .status(400)
+      .json({ message: "weekStart field is required" });
+  }
+
+  const weekStart = parseUTCDate(weekStartParam);
 
   try {
     const result = await prisma.reflection.update({
@@ -66,7 +81,7 @@ router.patch("/current", async (req, res) => {
   }
 });
 
-// Get all past reflections for logged in user
+// Get all past reflections for logged in user (future feature)
 router.get("/reflections", async (req, res) => {
   const userId = req.user.userId;
 

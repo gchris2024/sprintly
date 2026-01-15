@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../lib/prismaClient.ts";
-import { getWeekRange, normalizeDate } from "../utils/time.js";
+import { getWeekRange, parseUTCDate } from "../utils/time.js";
 
 const router = express.Router();
 
@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
     data: {
       task,
       userId,
-      date: normalizeDate(date),
+      date: parseUTCDate(date),
       minutes,
     },
   });
@@ -76,7 +76,7 @@ router.patch("/:id", async (req, res) => {
         ...(completed !== undefined && { completed: !!completed }),
         ...(minutes !== undefined && { minutes }),
         ...(task && { task }),
-        ...(date && { date: normalizeDate(date) }),
+        ...(date && { date: parseUTCDate(date) }),
       },
     });
     res.status(200).json(result);
