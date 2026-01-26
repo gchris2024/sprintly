@@ -11,7 +11,7 @@ export function getWeekStart(date: Date = new Date()): Date {
 export function getWeekRange(date: Date = new Date()) {
   const start = getWeekStart(date);
   const end = new Date(start);
-  end.setDate(end.getDate() + 7);
+  end.setDate(end.getDate() + 6);
   return { start, end };
 }
 

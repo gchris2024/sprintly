@@ -1,10 +1,20 @@
-import { getWeekStart } from "../../utils/time";
+import { getWeekRange } from "../../utils/time";
+import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
-  const weekStart = getWeekStart();
-  
-  console.log(weekStart);
-  return <div>The Dashboard</div>;
+  // Find the start and end of the current week
+  const { start, end } = getWeekRange();
+
+
+  return (
+    <div className={styles.container}>
+      Week of {""}
+      {start.toLocaleDateString(undefined, {
+        month: "numeric",
+        day: "numeric"
+      })}
+    </div>
+  );
 };
 
 export default Dashboard;
