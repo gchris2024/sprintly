@@ -1,6 +1,5 @@
 import express from "express";
 import { prisma } from "../lib/prismaClient.ts";
-import { parseUTCDate } from "../utils/time.js";
 
 const router = express.Router();
 
@@ -8,15 +7,16 @@ const router = express.Router();
 // If DNE, create a new reflection with empty fields
 router.get("/current", async (req, res) => {
   const userId = req.user.userId;
-  const { weekStart: weekStartParam } = req.query;
+  const { weekStart } = req.query;
 
-  if (!weekStartParam) {
+  if (!weekStart) {
     return res
       .status(400)
       .json({ message: "weekStart query param is required" });
   }
 
-  const weekStart = parseUTCDate(weekStartParam);
+  // Client sends weekStart in their timezone as ISO string
+  const weekStartDate = new Date(weekStart);
 
   // TODO: Maybe wrap in transaction
   try {
@@ -24,13 +24,13 @@ router.get("/current", async (req, res) => {
       where: {
         userId_weekStart: {
           userId,
-          weekStart,
+          weekStart: weekStartDate,
         },
       },
       update: {},
       create: {
         userId,
-        weekStart,
+        weekStart: weekStartDate,
         wins: "",
         challenges: "",
         nextWeekFocus: "",
@@ -46,15 +46,16 @@ router.get("/current", async (req, res) => {
 // Update reflection for the week
 router.patch("/current", async (req, res) => {
   const userId = req.user.userId;
-  const { weekStart: weekStartParam, wins, challenges, nextWeekFocus } = req.body;
+  const { weekStart, wins, challenges, nextWeekFocus } = req.body;
 
-  if (!weekStartParam) {
+  if (!weekStart) {
     return res
       .status(400)
-      .json({ message: "weekStart field is required" });
+      .json({ message: "weekStart is required in request body" });
   }
 
-  const weekStart = parseUTCDate(weekStartParam);
+  // Client sends weekStart in their timezone as ISO string
+  const weekStartDate = new Date(weekStart);
 
   try {
     const result = await prisma.reflection.update({
@@ -62,7 +63,7 @@ router.patch("/current", async (req, res) => {
       where: {
         userId_weekStart: {
           userId,
-          weekStart,
+          weekStart: weekStartDate,
         },
       },
       data: {

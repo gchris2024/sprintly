@@ -3,15 +3,14 @@ import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
   // Find the start and end of the current week
-  const { start, end } = getWeekRange();
-
+  const { start } = getWeekRange();
 
   return (
     <div className={styles.container}>
       Week of {""}
       {start.toLocaleDateString(undefined, {
         month: "numeric",
-        day: "numeric"
+        day: "numeric",
       })}
     </div>
   );
