@@ -1,8 +1,8 @@
-import Login from "./pages/Login/Login";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Dashboard from "@/pages/Dashboard/Dashboard";
+import Login from "@/pages/Login/Login";
 import "./App.css";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (

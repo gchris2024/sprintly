@@ -1,4 +1,4 @@
-import { getWeekRange } from "../../utils/time";
+import { getWeekRange } from "@/utils/time";
 import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
