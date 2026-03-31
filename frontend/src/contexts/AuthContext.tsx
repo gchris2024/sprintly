@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { authService } from "@/services/authService";
+import { authService } from "../services/authService";
 
 type User = {
   username: string; // Add other user properties as needed

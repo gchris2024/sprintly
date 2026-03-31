@@ -1,9 +1,9 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { validateAuthInput } from "../utils/validateAuthInput.js";
 import { prisma } from "../lib/prismaClient.ts";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { validateRegister, validateLogin } from "../middleware/validate.js";
 
 const router = express.Router();
 
@@ -19,14 +19,8 @@ if (!process.env.JWT_SECRET) {
 }
 
 /* Register a new user endpoint /api/auth/register */
-router.post("/register", async (req, res) => {
+router.post("/register", validateRegister, async (req, res) => {
   const { username, password } = req.body;
-
-  // Validate input
-  const validation = validateAuthInput(username, password);
-  if (!validation.valid) {
-    return res.status(400).json({ message: validation.message });
-  }
 
   try {
     // Use transaction to ensure both user and todo are created together
@@ -37,7 +31,7 @@ router.post("/register", async (req, res) => {
       // Create user
       const user = await tx.user.create({
         data: {
-          username: validation.data.username,
+          username,
           password: hashedPassword,
         },
       });
@@ -82,22 +76,14 @@ router.post("/register", async (req, res) => {
 });
 
 /* Login endpoint /api/auth/login */
-router.post("/login", async (req, res) => {
+router.post("/login", validateLogin, async (req, res) => {
   const { username, password } = req.body;
-
-  // Validate input
-  const validation = validateAuthInput(username, password);
-  if (!validation.valid) {
-    return res
-      .status(400)
-      .json({ success: false, message: validation.message });
-  }
 
   try {
     // Find user by username
     const user = await prisma.user.findUnique({
       where: {
-        username: validation.data.username,
+        username,
       },
     });
 
@@ -108,10 +94,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Compare password asynchronously
-    const passwordIsValid = await bcrypt.compare(
-      validation.data.password,
-      user.password
-    );
+    const passwordIsValid = await bcrypt.compare(password, user.password);
 
     if (!passwordIsValid) {
       return res

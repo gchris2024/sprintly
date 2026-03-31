@@ -1,58 +1,54 @@
 import express from "express";
 import { prisma } from "../lib/prismaClient.ts";
+import {
+  validateGetCurrentReflection,
+  validateUpdateReflection,
+} from "../middleware/validate.js";
 
 const router = express.Router();
 
 // Get current week reflection for logged in user
 // If DNE, create a new reflection with empty fields
-router.get("/current", async (req, res) => {
-  const userId = req.user.userId;
-  const { weekStart } = req.query;
+router.get(
+  "/current",
+  validateGetCurrentReflection,
+  async (req, res) => {
+    const userId = req.user.userId;
+    const { weekStart } = req.query;
 
-  if (!weekStart) {
-    return res
-      .status(400)
-      .json({ message: "weekStart query param is required" });
-  }
+    // Client sends weekStart in their timezone as ISO string
+    const weekStartDate = new Date(weekStart);
 
-  // Client sends weekStart in their timezone as ISO string
-  const weekStartDate = new Date(weekStart);
-
-  // TODO: Maybe wrap in transaction
-  try {
-    const reflection = await prisma.reflection.upsert({
-      where: {
-        userId_weekStart: {
+    // TODO: Maybe wrap in transaction
+    try {
+      const reflection = await prisma.reflection.upsert({
+        where: {
+          userId_weekStart: {
+            userId,
+            weekStart: weekStartDate,
+          },
+        },
+        update: {},
+        create: {
           userId,
           weekStart: weekStartDate,
+          wins: "",
+          challenges: "",
+          nextWeekFocus: "",
         },
-      },
-      update: {},
-      create: {
-        userId,
-        weekStart: weekStartDate,
-        wins: "",
-        challenges: "",
-        nextWeekFocus: "",
-      },
-    });
+      });
 
-    res.json(reflection);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to get or create reflection" });
+      res.json(reflection);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get or create reflection" });
+    }
   }
-});
+);
 
 // Update reflection for the week
-router.patch("/current", async (req, res) => {
+router.patch("/current", validateUpdateReflection, async (req, res) => {
   const userId = req.user.userId;
   const { weekStart, wins, challenges, nextWeekFocus } = req.body;
-
-  if (!weekStart) {
-    return res
-      .status(400)
-      .json({ message: "weekStart is required in request body" });
-  }
 
   // Client sends weekStart in their timezone as ISO string
   const weekStartDate = new Date(weekStart);
