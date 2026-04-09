@@ -6,7 +6,7 @@ if (!process.env.JWT_SECRET) {
 }
 
 export default function authMiddleware(req, res, next) {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers["authorization"]; // TODO: Remove fallback
   const token = req.cookies.token || authHeader?.split(" ")[1]; // Bearer <token>
 
   if (!token) {

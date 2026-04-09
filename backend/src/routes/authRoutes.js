@@ -56,7 +56,7 @@ router.post("/register", validateRegister, async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict", // CSRF protection
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 60 * 1000, // 30 minutes
     });
     // (Can return other non-sensitive user info as needed)
     res.json({ success: true, username: result.username });
@@ -111,7 +111,7 @@ router.post("/login", validateLogin, async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict", // CSRF protection
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 60 * 1000, // 30 minutes
     });
     // (Can return other non-sensitive user info as needed)
     res.json({ success: true, username: user.username });
