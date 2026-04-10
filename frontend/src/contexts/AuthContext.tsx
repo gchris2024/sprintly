@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { authService } from "../services/authService";
+import { createContext, useState, useEffect, useCallback } from "react";
+import { authService, AUTH_TOKEN_EXPIRED_EVENT } from "../services/authService";
 
 type User = {
   username: string; // Add other user properties as needed
@@ -14,18 +14,30 @@ type AuthContextType = {
   isAuthenticated: boolean;
 };
 
-// Create auth context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 // AuthProvider component to wrap the app
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleTokenExpired = useCallback(() => {
+    setUser(null);
+  }, []);
+
   useEffect(() => {
-    // Check if user is already logged in on mount
+    window.addEventListener(AUTH_TOKEN_EXPIRED_EVENT, handleTokenExpired);
+    return () => {
+      window.removeEventListener(AUTH_TOKEN_EXPIRED_EVENT, handleTokenExpired);
+    };
+  }, [handleTokenExpired]);
+
+  useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Check if user is already logged / authenticated
         const response = await authService.getCurrentUser();
         if (response.success) {
           setUser({ username: response.username });
@@ -77,12 +89,3 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-// Custom hook to use auth context
-export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
-  }
-  return context;
-}
