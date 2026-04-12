@@ -1,6 +1,7 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import Login from "@/pages/Login/Login";
+import Navbar from "@/components/Navbar/Navbar";
 import "./App.css";
 import { Navigate, Route, Routes } from "react-router-dom";
 
@@ -16,6 +17,7 @@ function App() {
         path="/dashboard"
         element={
           <ProtectedRoute>
+            <Navbar />
             <Dashboard />
           </ProtectedRoute>
         }

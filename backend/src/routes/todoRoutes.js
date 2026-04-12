@@ -10,30 +10,44 @@ import {
 
 const router = express.Router();
 
-// Get weekly todos for logged in user
-router.get("/", validateWeeklyTodosQuery, async (req, res) => {
-  const { weekStart } = req.query;
-  const userId = req.user.userId;
-
-  // Get start and end dates for the week
-  const { start: weekStartDate, end: weekEndDate } = getWeekRange(weekStart);
-
-  // Fetch todos for the user within the week range
-  const todos = await prisma.todo.findMany({
+async function fetchTodosForRange(userId, startDate, endDate) {
+  return prisma.todo.findMany({
     where: {
       userId,
       date: {
-        gte: weekStartDate,
-        lt: weekEndDate,
+        gte: startDate,
+        lt: endDate,
       },
     },
     orderBy: {
       date: "asc",
     },
   });
+}
 
-  res.json(todos);
+// Get current week todos for logged in user (default dashboard endpoint)
+router.get("/", async (req, res) => {
+  const userId = req.user.userId;
+  const { start: startDate, end: endDate } = getWeekRange(
+    new Date().toISOString(),
+  );
+
+  const todos = await fetchTodosForRange(userId, startDate, endDate);
+
+  res.status(200).json(todos);
 });
+
+// Get todos for a specific week using weekStart query param
+// router.get("/weekly", validateWeeklyTodosQuery, async (req, res) => {
+//   const { weekStart } = req.query;
+//   const userId = req.user.userId;
+//   const { start: startDate, end: endDate } = getWeekRange(weekStart);
+
+//   const todos = await fetchTodosForRange(userId, startDate, endDate);
+//   console.log("Fetched requested week todos:", todos);
+
+//   res.json(todos);
+// });
 
 // Create a new todo
 router.post("/", validateCreateTodo, async (req, res) => {
@@ -85,7 +99,7 @@ router.patch(
       }
       return res.status(500).json({ error: "Failed to update todo" });
     }
-  }
+  },
 );
 
 // Delete a todo
